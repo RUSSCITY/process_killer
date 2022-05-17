@@ -1,13 +1,10 @@
 package software.ragimov.process_killer
 
-import android.app.Activity
 import android.app.ActivityManager
 import android.content.Context
 import android.os.Process
 import android.util.Log
 import androidx.annotation.NonNull
-import androidx.core.content.ContextCompat.getSystemService
-import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
@@ -37,7 +34,19 @@ class ProcessKillerPlugin : FlutterPlugin, MethodCallHandler {
             Log.d("ProcessKillerPlugin", "Try to kill this process: $processName")
             val a: ActivityManager =
                 context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
-            a.killBackgroundProcesses(processName)
+            for (service in a.getRunningServices(99999999)) {
+                Log.d(
+                    "ProcessKillerPlugin",
+                    "running service: ${service.process} ${service.pid}-pid"
+                )
+                if (service.process == processName) {
+                    Log.d(
+                        "ProcessKillerPlugin",
+                        "Will kill found process"
+                    )
+                    Process.killProcess(service.pid)
+                }
+            }
             result.success(true)
         } else if (call.method == "killMyselfProcess") {
             Log.d("ProcessKillerPlugin", "Killing my pid: " + Process.myPid())

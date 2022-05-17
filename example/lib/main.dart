@@ -67,8 +67,7 @@ class _MyAppState extends State<MyApp> {
           name: 'launcher',
         ),
         buttons: [
-          const NotificationButton(id: 'sendButton', text: 'Send'),
-          const NotificationButton(id: 'testButton', text: 'Test'),
+          const NotificationButton(id: 'sendButton', text: 'Stop'),
         ],
       ),
       iosNotificationOptions: const IOSNotificationOptions(
@@ -77,7 +76,7 @@ class _MyAppState extends State<MyApp> {
       ),
       foregroundTaskOptions: const ForegroundTaskOptions(
         interval: 5000,
-        autoRunOnBoot: true,
+        autoRunOnBoot: false,
         allowWifiLock: true,
       ),
       printDevLog: true,
@@ -103,7 +102,7 @@ class _MyAppState extends State<MyApp> {
 
   void startCallback() {
     // The setTaskHandler function must be called to handle the task in the background.
-    // FlutterForegroundTask.setTaskHandler(FirstTaskHandler());
+    FlutterForegroundTask.setTaskHandler(FirstTaskHandler());
   }
 
   bool _registerReceivePort(ReceivePort? receivePort) {
@@ -154,8 +153,8 @@ class _MyAppState extends State<MyApp> {
             ),
             TextButton(
                 onPressed: () async {
-                  bool? result =
-                      await _processKillerPlugin.killProcessByName("software.ragimov.process_killer_example:TestProcess");
+                  bool? result = await _processKillerPlugin.killProcessByName(
+                      "software.ragimov.process_killer_example:TestProcess");
                   print("Executed: " + result.toString());
                 },
                 child: const Text("Kill Process"))
@@ -163,5 +162,42 @@ class _MyAppState extends State<MyApp> {
         ),
       ),
     );
+  }
+}
+
+class FirstTaskHandler extends TaskHandler {
+  SendPort? _sendPort;
+
+  @override
+  Future<void> onStart(DateTime timestamp, SendPort? sendPort) async {
+    _sendPort = sendPort;
+    print('STARTED');
+
+    // You can use the getData function to get the stored data.
+    final customData =
+        await FlutterForegroundTask.getData<String>(key: 'customData');
+  }
+
+  @override
+  Future<void> onEvent(DateTime timestamp, SendPort? sendPort) async {
+    // Send data to the main isolate.
+    sendPort?.send(timestamp);
+  }
+
+  @override
+  Future<void> onDestroy(DateTime timestamp, SendPort? sendPort) async {
+    // You can use the clearAllData function to clear all the stored data.
+    await FlutterForegroundTask.clearAllData();
+    await ProcessKiller().killProcessByName(
+        "software.ragimov.process_killer_example:TestProcess");
+  }
+
+  @override
+  void onButtonPressed(String id) async {
+    // Called when the notification button on the Android platform is pressed.
+    print('onButtonPressed >> $id');
+    if (id == "sendButton") {
+      FlutterForegroundTask.stopService();
+    }
   }
 }
