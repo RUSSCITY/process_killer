@@ -1,7 +1,8 @@
-library process_killer;
 
-/// A Calculator.
-class Calculator {
-  /// Returns [value] plus 1.
-  int addOne(int value) => value + 1;
+import 'process_killer_platform_interface.dart';
+
+class ProcessKiller {
+  Future<String?> getPlatformVersion() {
+    return ProcessKillerPlatform.instance.getPlatformVersion();
+  }
 }
