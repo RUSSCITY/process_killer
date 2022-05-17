@@ -11,7 +11,23 @@ class MethodChannelProcessKiller extends ProcessKillerPlatform {
 
   @override
   Future<String?> getPlatformVersion() async {
-    final version = await methodChannel.invokeMethod<String>('getPlatformVersion');
+    final version =
+        await methodChannel.invokeMethod<String>('getPlatformVersion');
     return version;
+  }
+
+  @override
+  Future<bool?> killProcessByName(String processName) async {
+    final executed = await methodChannel
+        .invokeMethod<bool>('killProcessByName', {"processName": processName});
+    return executed;
+  }
+
+  @override
+  Future<bool?> killMyselfProcess() async {
+    final executed = await methodChannel.invokeMethod<bool>(
+      'killMyselfProcess',
+    );
+    return executed;
   }
 }

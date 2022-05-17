@@ -26,4 +26,12 @@ abstract class ProcessKillerPlatform extends PlatformInterface {
   Future<String?> getPlatformVersion() {
     throw UnimplementedError('platformVersion() has not been implemented.');
   }
+
+  Future<bool?> killProcessByName(String processName) {
+    throw UnimplementedError('killProcessByName() has not been implemented.');
+  }
+
+  Future<bool?> killMyselfProcess() {
+    throw UnimplementedError('killMyselfProcess() has not been implemented.');
+  }
 }
